@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:IECameraandGallery"
+             x:Class="IECameraandGallery.MainPage">
+    <Grid BackgroundColor="White" Padding="20,70,20,0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0.6*" />
+            <RowDefinition Height="1" />
+            <RowDefinition Height="50" />
+            <RowDefinition Height="0.6*" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="1" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0"  BackgroundColor="Transparent">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1.5*" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Image x:Name="OpenGallery" AutomationId="OpenGallery"   Grid.Row="0" Source="{Binding ChooseImageSelected}">
+                    <Image.GestureRecognizers>
+                        <TapGestureRecognizer   Tapped="OpenGalleryTapped" NumberOfTapsRequired="1" />
+                    </Image.GestureRecognizers>
+                </Image>
+                <Label FontSize="18" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" TextColor="#333333" Grid.Row="1" Text="Open Gallery" />
+            </Grid>
+            <StackLayout Grid.Column="1" Padding="0,5,0,20" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+                <StackLayout WidthRequest="1" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" BackgroundColor="#808080" />
+            </StackLayout>
+            <Grid Grid.Column="2"  BackgroundColor="Transparent">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1.5*" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Image x:Name="TakePhoto"  AutomationId="TakePhoto" Grid.Row="0" Source="{Binding TakePic}" >
+                    <Image.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="TakeAPhotoTapped" NumberOfTapsRequired="1" />
+                    </Image.GestureRecognizers>
+                </Image>
+                <Label FontSize="18" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" Grid.Row="1" TextColor="#333333" Text="Take a photo" />
+            </Grid>
+        </Grid>
+        <StackLayout Grid.Row="1" Padding="0,5,0,0" >
+            <StackLayout  HeightRequest="1" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" BackgroundColor="#808080" />
+        </StackLayout>
+        <StackLayout Padding="10,15,0,0" Grid.Row="2" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+            <Label BackgroundColor="Transparent" HorizontalTextAlignment="Start" VerticalTextAlignment="Center" FontSize="18" TextColor="#808080" Text="Sample Pictures" />
+        </StackLayout>
+        <Grid Grid.Row="3" x:Name="mainGrid" Padding="0,5,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Frame x:Name="Frame1" Padding="1"  HasShadow="false" Grid.Column="0" BackgroundColor="#999999">
+                <Image BackgroundColor="White" AutomationId="Image1" Aspect="AspectFill" Grid.Column="0" Source="{Binding BroweImage1}" >
+                    <Image.GestureRecognizers>
+                        <TapGestureRecognizer  Tapped="ImageTapped" NumberOfTapsRequired="1" />
+                    </Image.GestureRecognizers>
+                </Image>
+            </Frame>
+            <Frame x:Name="Frame2" HasShadow="false" Padding="1" Grid.Column="1" BackgroundColor="#666666">
+                <Image BackgroundColor="White" AutomationId="Image2" Aspect="AspectFill" Grid.Column="1" Source="{Binding BroweImage2}" >
+                    <Image.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="ImageTapped" NumberOfTapsRequired="1" />
+                    </Image.GestureRecognizers>
+                </Image>
+            </Frame>
+            <Frame x:Name="Frame3" HasShadow="false" Padding="1" Grid.Column="2" BackgroundColor="#999999">
+                <Image BackgroundColor="White" AutomationId="Image3" Aspect="AspectFill" Grid.Column="2" Source="{Binding BroweImage3}" >
+                    <Image.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="ImageTapped" NumberOfTapsRequired="1" />
+                    </Image.GestureRecognizers>
+                </Image>
+            </Frame>
+        </Grid>
+    </Grid>
+</ContentPage>

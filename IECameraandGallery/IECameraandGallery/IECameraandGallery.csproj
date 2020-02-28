@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>pdbonly</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Icons\Gallery_S.png" />
+    <None Remove="Icons\Gallery_W.png" />
+    <None Remove="Icons\icon.png" />
+    <None Remove="Icons\image2.png" />
+    <None Remove="Icons\image3.png" />
+    <None Remove="Icons\image4.png" />
+    <None Remove="Icons\Plain.png" />
+    <None Remove="Icons\Take_Photo_S.png" />
+    <None Remove="Icons\Take_Photo_W.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Icons\Gallery_S.png" />
+    <EmbeddedResource Include="Icons\Gallery_W.png" />
+    <EmbeddedResource Include="Icons\icon.png" />
+    <EmbeddedResource Include="Icons\image2.png" />
+    <EmbeddedResource Include="Icons\image3.png" />
+    <EmbeddedResource Include="Icons\image4.png" />
+    <EmbeddedResource Include="Icons\Plain.png" />
+    <EmbeddedResource Include="Icons\Take_Photo_S.png" />
+    <EmbeddedResource Include="Icons\Take_Photo_W.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Syncfusion.Xamarin.SfImageEditor" Version="*" />
+    <PackageReference Include="Xamarin.Forms" Version="4.3.0.991221" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="MainPage.xaml.cs">
+      <DependentUpon>MainPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="SfImageEditorPage.xaml.cs">
+      <DependentUpon>SfImageEditorPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+</Project>
