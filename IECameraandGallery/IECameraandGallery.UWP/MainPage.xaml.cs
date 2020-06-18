@@ -1,15 +1,15 @@
-﻿using IECameraandGallery.UWP;
+﻿using IECameraAndGallery.UWP;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
-using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Media.Capture;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+using Windows.Storage.Streams;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -20,25 +20,25 @@ using Windows.UI.Xaml.Navigation;
 using Xamarin.Forms;
 
 [assembly: Dependency(typeof(ImageEditorService))]
-namespace IECameraandGallery.UWP
+namespace IECameraAndGallery.UWP
 {
+
     public sealed partial class MainPage
     {
         public MainPage()
         {
             this.InitializeComponent();
-
-            LoadApplication(new IECameraandGallery.App());
+            LoadApplication(new IECameraAndGallery.App());
         }
-
     }
-    public class ImageEditorService : IImageEditorDependencyService
+
+    public class ImageEditorService : CameraInterface
     {
         public ImageEditorService()
         {
         }
 
-        async void IImageEditorDependencyService.UploadFromCamera(IECameraandGallery.MainPage editor)
+        public async void LaunchCamera(FileFormatEnum imageType, string imageId = null)
         {
             CameraCaptureUI captureUI = new CameraCaptureUI();
             captureUI.PhotoSettings.Format = CameraCaptureUIPhotoFormat.Jpeg;
@@ -48,12 +48,32 @@ namespace IECameraandGallery.UWP
             if (photo != null)
             {
                 var stream = await photo.OpenAsync(FileAccessMode.Read);
-                if(stream!=null)
-                editor.SwitchView(stream.AsStream());
+
+                var reader = new DataReader(stream.GetInputStreamAt(0));
+                var bytes = new byte[stream.Size];
+                await reader.LoadAsync((uint)stream.Size);
+                reader.ReadBytes(bytes);
+                MessagingCenter.Send<byte[]>(bytes, "ImageSelected");
             }
         }
 
-        async void IImageEditorDependencyService.UploadFromGallery(IECameraandGallery.MainPage editor)
+
+        private byte[] GetImageStreamAsBytes(Stream input)
+        {
+            var buffer = new byte[16 * 1024];
+            using (MemoryStream ms = new MemoryStream())
+            {
+                int read;
+                while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    ms.Write(buffer, 0, read);
+                }
+                return ms.ToArray();
+            }
+        }
+
+
+        public async void LaunchGallery(FileFormatEnum imageType, string imageId = null)
         {
             FileOpenPicker openPicker = new FileOpenPicker();
             openPicker.FileTypeFilter.Add(".jpg");
@@ -63,8 +83,11 @@ namespace IECameraandGallery.UWP
             if (file != null)
             {
                 var stream = await file.OpenAsync(FileAccessMode.Read);
-                if(stream!=null)
-                editor.SwitchView(stream.AsStream());
+                var reader = new DataReader(stream.GetInputStreamAt(0));
+                var bytes = new byte[stream.Size];
+                await reader.LoadAsync((uint)stream.Size);
+                reader.ReadBytes(bytes);
+                MessagingCenter.Send<byte[]>(bytes, "ImageSelected");
             }
         }
     }

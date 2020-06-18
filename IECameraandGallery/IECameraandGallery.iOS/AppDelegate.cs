@@ -3,13 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Foundation;
-using IECameraandGallery.iOS;
 using Syncfusion.SfImageEditor.XForms.iOS;
 using UIKit;
-using Xamarin.Forms;
 
-[assembly: Dependency(typeof(ImageEditorService))]
-namespace IECameraandGallery.iOS
+namespace IECameraAndGallery.iOS
 {
     // The UIApplicationDelegate for the application. This class is responsible for launching the 
     // User Interface of the application, as well as listening (and optionally responding) to 
@@ -30,57 +27,6 @@ namespace IECameraandGallery.iOS
             LoadApplication(new App());
             SfImageEditorRenderer.Init();
             return base.FinishedLaunching(app, options);
-        }
-    }
-
-    public class ImageEditorService : IImageEditorDependencyService
-    {
-        UIImagePickerController imagePicker;
-
-        void IImageEditorDependencyService.UploadFromCamera(MainPage editor)
-        {
-            imagePicker = new UIImagePickerController();
-            imagePicker.SourceType = UIImagePickerControllerSourceType.Camera;
-            imagePicker.MediaTypes = UIImagePickerController.AvailableMediaTypes(UIImagePickerControllerSourceType.Camera);
-            imagePicker.FinishedPickingMedia += (object sender, UIImagePickerMediaPickedEventArgs e) =>
-            {
-                imagePicker.DismissModalViewController(true);
-                editor.SwitchView(e.OriginalImage.AsPNG().AsStream());
-            };
-            imagePicker.Canceled += (sender, evt) =>
-            {
-                imagePicker.DismissModalViewController(true);
-            };
-            var topController = UIApplication.SharedApplication.KeyWindow.RootViewController;
-            while (topController.PresentedViewController != null)
-            {
-                topController = topController.PresentedViewController;
-            }
-            topController.PresentViewController(imagePicker, true, null);
-        }
-
-        void IImageEditorDependencyService.UploadFromGallery(MainPage editor)
-        {
-            imagePicker = new UIImagePickerController();
-            imagePicker.AllowsEditing = true;
-            imagePicker.SourceType = UIImagePickerControllerSourceType.PhotoLibrary;
-            imagePicker.MediaTypes = UIImagePickerController.AvailableMediaTypes(UIImagePickerControllerSourceType.PhotoLibrary);
-            imagePicker.FinishedPickingMedia += (object sender, UIImagePickerMediaPickedEventArgs e) =>
-            {
-                imagePicker.DismissModalViewController(true);
-                var image = e.OriginalImage ?? e.EditedImage;
-                editor.SwitchView(image.AsPNG().AsStream());
-            };
-            imagePicker.Canceled += (sender, evt) =>
-            {
-                imagePicker.DismissModalViewController(true);
-            };
-            var topController = UIApplication.SharedApplication.KeyWindow.RootViewController;
-            while (topController.PresentedViewController != null)
-            {
-                topController = topController.PresentedViewController;
-            }
-            topController.PresentViewController(imagePicker, true, null);
         }
     }
 }

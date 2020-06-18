@@ -6,195 +6,242 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using Android.OS;
-using Xamarin.Forms;
-using IECameraandGallery.Droid;
 using Android.Content;
-using Android.Provider;
-using Java.IO;
 using System.Threading.Tasks;
+using Android.Media;
+using System.IO;
+using Android.Graphics;
+using Xamarin.Forms;
+using System.IO;
+using Android;
+using Android.Support.V4.App;
 
-
-[assembly: Dependency(typeof(ImageEditorService))]
-namespace IECameraandGallery.Droid
+namespace IECameraAndGallery.Droid
 {
-    [Activity(Label = "IECameraandGallery", Icon = "@drawable/icon", Theme = "@style/MainTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation)]
+    [Activity(Label = "IECameraAndGallery", Icon = "@mipmap/icon", Theme = "@style/MainTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation)]
     public class MainActivity : global::Xamarin.Forms.Platform.Android.FormsAppCompatActivity
     {
-        protected override void OnCreate(Bundle bundle)
+        private static int PERMISSION_REQUEST_CODE = 200;
+        string permission = Manifest.Permission.Camera;
+        internal static Context ActivityContext { get; private set; }
+        protected override void OnCreate(Bundle savedInstanceState)
         {
             TabLayoutResource = Resource.Layout.Tabbar;
             ToolbarResource = Resource.Layout.Toolbar;
-
-            base.OnCreate(bundle);
-
-            global::Xamarin.Forms.Forms.Init(this, bundle);
+            ActivityContext = this;
+            base.OnCreate(savedInstanceState);
+            global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
             LoadApplication(new App());
+            if (ActivityCompat.CheckSelfPermission(this, permission) == Permission.Granted)
+            {
+
+            }
+            else
+            {
+                ActivityCompat.RequestPermissions(this, new String[] { Manifest.Permission.Camera, Manifest.Permission.WriteExternalStorage, Manifest.Permission.ReadExternalStorage }, PERMISSION_REQUEST_CODE);
+
+
+            }
         }
+
         public event EventHandler<ActivityResultEventArgs> ActivityResult;
 
+        public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Permission[] grantResults)
+        {
+            base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
+
+
+
+        }
         protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)
         {
-            if (resultCode == Result.Ok)
+            base.OnActivityResult(requestCode, resultCode, data);
+
+            //Since we set the request code to 1 for both the camera and photo gallery, that's what we need to check for
+            if (requestCode == 0)
             {
-                ActivityResult?.Invoke(this, new ActivityResultEventArgs { Intent = data });
+                if (resultCode == Result.Ok)
+                {
+                    ActivityResult?.Invoke(this, new ActivityResultEventArgs { Intent = data });
+                    Task.Run(() =>
+                    {
+                        if (App.ImageIdToSave != null)
+                        {
+                            var documentsDirectry = ActivityContext.GetExternalFilesDir(Android.OS.Environment.DirectoryPictures);
+                            string pngFilename = System.IO.Path.Combine(documentsDirectry.AbsolutePath, App.ImageIdToSave + "." + FileFormatEnum.JPEG.ToString());
+
+                            if (File.Exists(pngFilename))
+                            {
+                                Java.IO.File file = new Java.IO.File(documentsDirectry, App.ImageIdToSave + "." + FileFormatEnum.JPEG.ToString());
+                                Android.Net.Uri uri = Android.Net.Uri.FromFile(file);
+
+                                //Read the meta data of the image to determine what orientation the image should be in
+                                var originalMetadata = new ExifInterface(pngFilename);
+                                int orientation = GetRotation(originalMetadata);
+
+                                var fileName = App.ImageIdToSave + "." + FileFormatEnum.JPEG.ToString();
+                                HandleBitmap(uri, orientation, fileName);
+                            }
+                        }
+                    });
+                }
+            }
+            else if (requestCode == 1)
+            {
+                if (resultCode == Result.Ok)
+                {
+                    if (data.Data != null)
+                    {
+                        //Grab the Uri which is holding the path to the image
+                        Android.Net.Uri uri = data.Data;
+
+                        string fileName = null;
+
+                        if (App.ImageIdToSave != null)
+                        {
+                            fileName = App.ImageIdToSave + "." + FileFormatEnum.JPEG.ToString();
+                            var pathToImage = GetPathToImage(uri);
+                            var originalMetadata = new ExifInterface(pathToImage);
+                            int orientation = GetRotation(originalMetadata);
+
+                            HandleBitmap(uri, orientation, fileName);
+                        }
+                    }
+                }
+            }
+        }
+
+        private string GetPathToImage(Android.Net.Uri uri)
+        {
+            string doc_id = "";
+            using (var c1 = ContentResolver.Query(uri, null, null, null, null))
+            {
+                c1.MoveToFirst();
+                String document_id = c1.GetString(0);
+                doc_id = document_id.Substring(document_id.LastIndexOf(":") + 1);
+            }
+
+            string path = null;
+
+            // The projection contains the columns we want to return in our query.
+            string selection = Android.Provider.MediaStore.Images.Media.InterfaceConsts.Id + " =? ";
+            using (var cursor =ContentResolver.Query(Android.Provider.MediaStore.Images.Media.ExternalContentUri, null, selection, new string[] { doc_id }, null))
+            {
+                if (cursor == null) return path;
+                var columnIndex = cursor.GetColumnIndexOrThrow(Android.Provider.MediaStore.Images.Media.InterfaceConsts.Data);
+                cursor.MoveToFirst();
+                path = cursor.GetString(columnIndex);
+            }
+            return path;
+        }
+
+        public int GetRotation(ExifInterface exif)
+        {
+            try
+            {
+                var orientation = (Android.Media.Orientation)exif.GetAttributeInt(ExifInterface.TagOrientation, (int)Android.Media.Orientation.Normal);
+
+                switch (orientation)
+                {
+                    case Android.Media.Orientation.Rotate90:
+                        return 90;
+                    case Android.Media.Orientation.Rotate180:
+                        return 180;
+                    case Android.Media.Orientation.Rotate270:
+                        return 270;
+                    default:
+                        return 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return 0;
+            }
+        }
+
+        public void HandleBitmap(Android.Net.Uri uri, int orientation, string imageId)
+        {
+            try
+            {
+                Bitmap mBitmap = Android.Provider.MediaStore.Images.Media.GetBitmap(this.ContentResolver, uri);
+                Bitmap myBitmap = null;
+
+                if (mBitmap != null)
+                {
+                    //In order to rotate the image we create a Matrix object, rotate if the image is not already in it's correct orientation
+                    Matrix matrix = new Matrix();
+                    if (orientation != 0)
+                    {
+                        matrix.PreRotate(orientation);
+                    }
+
+                    Console.WriteLine("About to rotate");
+                    myBitmap = Bitmap.CreateBitmap(mBitmap, 0, 0, mBitmap.Width, mBitmap.Height, matrix, true);
+
+                    MemoryStream stream = new MemoryStream();
+
+                    Console.WriteLine("About to compress");
+                    //Compressing by 50%, feel free to change if file size is not a factor
+                    myBitmap.Compress(Bitmap.CompressFormat.Jpeg, 50, stream);
+
+                    Console.WriteLine("About to convert to byte array");
+                    byte[] bitmapData = stream.ToArray();
+
+                    //Send image byte array back to UI
+                    Console.WriteLine("About to send Image back to UI");
+
+                    if (imageId != null && imageId != "")
+                    {
+                        SavePictureToDisk(myBitmap, imageId);
+                    }
+
+                    MessagingCenter.Send<byte[]>(bitmapData, "ImageSelected");
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+        }
+
+        public void SavePictureToDisk(Bitmap source, string imageName)
+        {
+            try
+            {
+                Task.Run(() =>
+                {
+                    var documentsDirectry = ActivityContext.GetExternalFilesDir(Android.OS.Environment.DirectoryPictures);
+                    string pngFilename = System.IO.Path.Combine(documentsDirectry.AbsolutePath, imageName);
+
+                    //If the image already exists, delete, and make way for the updated one
+                    if (File.Exists(pngFilename))
+                    {
+                        File.Delete(pngFilename);
+                    }
+
+                    using (FileStream fs = new FileStream(pngFilename, FileMode.OpenOrCreate))
+                    {
+                        source.Compress(Bitmap.CompressFormat.Jpeg, 50, fs);
+                        fs.Close();
+                    }
+
+                    Console.WriteLine("Saved photo");
+                });
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
             }
         }
     }
-
     public class ActivityResultEventArgs : EventArgs
     {
+
         public Intent Intent
         {
             get;
             set;
         }
-    }
-
-    public class ImageEditorService : IImageEditorDependencyService
-    {
-        private static int SELECT_FROM_GALLERY = 0;
-        private static int SELECT_FROM_CAMERA = 1;
-        static Intent mainIntent;
-        private Android.Net.Uri mImageCaptureUri;
-        MainActivity activity;
-        bool isCamera = false;
-        private MainPage page;
-
-        public void UploadFromCamera(MainPage editor)
-        {
-            isCamera = true;
-            page = editor;
-            activity = Xamarin.Forms.Forms.Context as MainActivity;
-            activity.ActivityResult -= LoadCamera;
-            activity.ActivityResult += LoadCamera;
-            var intent = new Intent(MediaStore.ActionImageCapture);
-            mImageCaptureUri = Android.Net.Uri.FromFile(new File(CreateDirectoryForPictures(),
-                string.Format("ImageEditor_Photo_{0}.jpg", DateTime.Now.ToString("yyyyMMddHHmmssfff"))));
-            intent.PutExtra(MediaStore.ExtraOutput, mImageCaptureUri);
-            Intent mediaScanIntent = new Intent(Intent.ActionMediaScannerScanFile);
-            mediaScanIntent.SetData(mImageCaptureUri);
-            activity.SendBroadcast(mediaScanIntent);
-            try
-            {
-                mainIntent = intent;
-                intent.PutExtra("return-data", false);
-                activity.StartActivityForResult(mainIntent, SELECT_FROM_CAMERA);
-            }
-            catch (ActivityNotFoundException e)
-            {
-                Toast.MakeText(activity, "Unable to Load Image", ToastLength.Short);
-            }
-        }
-
-        void LoadImage(object sender, ActivityResultEventArgs e)
-        {
-            if (!isCamera)
-            {
-                var imagePath = GetPathToImage(e.Intent.Data);
-                page.SwitchView(imagePath);
-            }
-            else
-            {
-                mainIntent.PutExtra("image-path", mImageCaptureUri.Path);
-                mainIntent.PutExtra("scale", true);
-                page.SwitchView(mImageCaptureUri.Path);
-            }
-        }
-
-        void LoadCamera(object sender, ActivityResultEventArgs e)
-        {
-            if (!isCamera)
-            {
-                var imagePath = GetPathToImage(e.Intent.Data);
-                page.SwitchView(imagePath);
-            }
-            else
-            {
-                mainIntent.PutExtra("image-path", mImageCaptureUri.Path);
-                mainIntent.PutExtra("scale", true);
-                page.SwitchView(mImageCaptureUri.Path);
-            }
-        }
-
-        public void UploadFromGallery(MainPage editor)
-        {
-            isCamera = false;
-            page = editor;
-            activity = Xamarin.Forms.Forms.Context as MainActivity;
-            activity.ActivityResult -= LoadImage;
-            activity.ActivityResult += LoadImage;
-            activity.Intent = new Intent();
-            activity.Intent.SetType("image/*");
-            activity.Intent.SetAction(Intent.ActionGetContent);
-            activity.StartActivityForResult(Intent.CreateChooser(activity.Intent, "Select Picture"), SELECT_FROM_GALLERY);
-        }
-
-        private string GetPathToImage(Android.Net.Uri uri)
-        {
-            string imgId = "";
-            string[] proj = { MediaStore.Images.Media.InterfaceConsts.Data };
-            using (var c1 = activity.ContentResolver.Query(uri, null, null, null, null))
-            {
-                try
-                {
-                    if (c1 == null) return "";
-                    c1.MoveToFirst();
-                    string imageId = c1.GetString(0);
-                    imgId = imageId.Substring(imageId.LastIndexOf(":") + 1);
-                }
-                catch (System.Exception e)
-                {
-                    Toast.MakeText(Xamarin.Forms.Forms.Context, "Unable To Load Image", ToastLength.Short);
-                }
-            }
-
-            string path = null;
-
-            string selection = MediaStore.Images.Media.InterfaceConsts.Id + " =? ";
-            using (var cursor = activity.ContentResolver.Query(MediaStore.Images.Media.ExternalContentUri, null, selection, new string[] { imgId }, null))
-            {
-                try
-                {
-                    if (cursor == null) return path;
-                    var columnIndex = cursor.GetColumnIndexOrThrow(MediaStore.Images.Media.InterfaceConsts.Data);
-                    cursor.MoveToFirst();
-                    path = cursor.GetString(columnIndex);
-                }
-                catch (System.Exception e)
-                {
-                    Toast.MakeText(Xamarin.Forms.Forms.Context, "Unable To Load Image", ToastLength.Short);
-                    return "";
-                }
-            }
-            return path;
-
-        }
-
-        string GetPathFromFile(Android.Net.Uri contentUri)
-        {
-            string res = null;
-            string[] proj = { MediaStore.Images.Media.InterfaceConsts.Data };
-            var cursor = activity.ContentResolver.Query(contentUri, null, null, null, null);
-            if (cursor == null) return contentUri.ToString();
-            if (cursor.MoveToFirst())
-            {
-                int column_index = cursor.GetColumnIndexOrThrow(MediaStore.Images.Media.InterfaceConsts.Data);
-                res = cursor.GetString(column_index);
-            }
-            cursor.Close();
-            return res;
-        }
-
-        private File CreateDirectoryForPictures()
-        {
-            var dir = new File(Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures), "ImageEditor");
-            if (!dir.Exists())
-            {
-                dir.Mkdirs();
-            }
-
-            return dir;
-        }
-
     }
 }

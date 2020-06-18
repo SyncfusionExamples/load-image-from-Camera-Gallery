@@ -7,15 +7,15 @@
   IgnorableNamespaces="uap mp">
 
   <Identity
-    Name="9732d907-9780-4ce2-b1f1-78e6614ae337"
-    Publisher="CN=8261727b-702f-4cd2-ae01-985512083e95"
+    Name="de777e8c-bada-4cc3-9997-e668b0ddbaa7"
+    Publisher="CN=5aa4e2fb-8e6d-4b5d-8c03-071610bd18c7"
     Version="1.0.0.0" />
 
   <mp:PhoneIdentity PhoneProductId="ec0cc741-fd3e-485c-81be-68815c480690" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>IECameraandGallery.UWP</DisplayName>
-    <PublisherDisplayName>8261727b-702f-4cd2-ae01-985512083e95</PublisherDisplayName>
+    <DisplayName>IECameraAndGallery.UWP</DisplayName>
+    <PublisherDisplayName>5aa4e2fb-8e6d-4b5d-8c03-071610bd18c7</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
@@ -30,14 +30,20 @@
   <Applications>
     <Application Id="App"
       Executable="$targetnametoken$.exe"
-      EntryPoint="IECameraandGallery.UWP.App">
+      EntryPoint="IECameraAndGallery.UWP.App">
       <uap:VisualElements
-        DisplayName="IECameraandGallery.UWP"
+        DisplayName="IECameraAndGallery.UWP"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png"
-        Description="IECameraandGallery.UWP"
+        Description="IECameraAndGallery.UWP"
         BackgroundColor="transparent">
-        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png"/>
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" Square310x310Logo="Assets\LargeTile.png" Square71x71Logo="Assets\SmallTile.png">
+          <uap:ShowNameOnTiles>
+            <uap:ShowOn Tile="square150x150Logo" />
+            <uap:ShowOn Tile="wide310x150Logo" />
+            <uap:ShowOn Tile="square310x310Logo" />
+          </uap:ShowNameOnTiles>
+        </uap:DefaultTile>
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
       </uap:VisualElements>
     </Application>

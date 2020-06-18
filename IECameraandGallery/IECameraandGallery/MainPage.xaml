@@ -1,8 +1,10 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:local="clr-namespace:IECameraandGallery"
-             x:Class="IECameraandGallery.MainPage">
+             xmlns:local="clr-namespace:IECameraAndGallery"
+              xmlns:editor="clr-namespace:Syncfusion.SfImageEditor.XForms;assembly=Syncfusion.SfImageEditor.XForms"
+             x:Class="IECameraAndGallery.MainPage">
+
     <Grid BackgroundColor="White" Padding="20,70,20,0">
         <Grid.RowDefinitions>
             <RowDefinition Height="0.6*" />
@@ -80,4 +82,5 @@
             </Frame>
         </Grid>
     </Grid>
+
 </ContentPage>

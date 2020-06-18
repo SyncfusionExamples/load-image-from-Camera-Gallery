@@ -1,8 +1,8 @@
 ﻿<Application
-    x:Class="IECameraandGallery.UWP.App"
+    x:Class="IECameraAndGallery.UWP.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:IECameraandGallery.UWP"
+    xmlns:local="using:IECameraAndGallery.UWP"
     RequestedTheme="Light">
 
 </Application>

@@ -4,26 +4,23 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
-namespace IECameraandGallery
+namespace IECameraAndGallery
 {
-    [XamlCompilation(XamlCompilationOptions.Compile)]
+	[XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class SfImageEditorPage : ContentPage
     {
-        private string _fileName;
 
-        public string FileName
+        public SfImageEditorPage()
         {
-            get { return _fileName; }
-            set
-            {
-                _fileName = value;
-                OnPropertyChanged("FileName");
-                OpenImageEditor(_fileName);
-            }
+            InitializeComponent();
+        }
+
+        public SfImageEditorPage(ImageSource source)
+        {
+            editor.Source = source;
         }
 
         private ImageSource _imageSource;
@@ -37,40 +34,10 @@ namespace IECameraandGallery
                 OpenImageEditor(_imageSource);
             }
         }
-        private Stream _stream;
-        public Stream Stream
-        {
-            get { return _stream; }
-            set
-            {
-                _stream = value;
-                OnPropertyChanged();
-                OpenImageEditor(_stream);
-            }
-        }
 
-        public SfImageEditorPage()
-        {
-            InitializeComponent();
-        }
-        void OpenImageEditor(string file)
-        {
-            editor.Source = ImageSource.FromFile(file);
-        }
-        void OpenImageEditor(Stream stream)
-        {
-            editor.Source = ImageSource.FromStream(() => stream);
-        }
         void OpenImageEditor(ImageSource imageSource)
         {
             editor.Source = imageSource;
         }
-    }
-
-    public interface IImageEditorDependencyService
-    {
-        void UploadFromCamera(MainPage editor);
-
-        void UploadFromGallery(MainPage editor);
     }
 }

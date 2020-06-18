@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -22,31 +22,44 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Icons\Gallery_S.png" />
-    <EmbeddedResource Include="Icons\Gallery_W.png" />
-    <EmbeddedResource Include="Icons\icon.png" />
-    <EmbeddedResource Include="Icons\image2.png" />
-    <EmbeddedResource Include="Icons\image3.png" />
-    <EmbeddedResource Include="Icons\image4.png" />
-    <EmbeddedResource Include="Icons\Plain.png" />
-    <EmbeddedResource Include="Icons\Take_Photo_S.png" />
-    <EmbeddedResource Include="Icons\Take_Photo_W.png" />
+    <EmbeddedResource Include="Icons\Gallery_S.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Icons\Gallery_W.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Icons\icon.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Icons\image2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Icons\image3.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Icons\image4.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Icons\Plain.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Icons\Take_Photo_S.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Icons\Take_Photo_W.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Syncfusion.Xamarin.Core" Version="*" />
     <PackageReference Include="Syncfusion.Xamarin.SfImageEditor" Version="*" />
-    <PackageReference Include="Xamarin.Forms" Version="4.3.0.991221" />
+    <PackageReference Include="Xamarin.Forms" Version="3.6.0.344457" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="MainPage.xaml.cs">
-      <DependentUpon>MainPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Update="SfImageEditorPage.xaml.cs">
-      <DependentUpon>SfImageEditorPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Update="App.xaml.cs">
-      <DependentUpon>App.xaml</DependentUpon>
-    </Compile>
+    <EmbeddedResource Update="SfImageEditorPage.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>
