@@ -28,7 +28,7 @@ namespace IECameraAndGallery.Droid
             var intent = new Intent(MediaStore.ActionImageCapture);
 
             Intent takePictureIntent = new Intent(MediaStore.ActionImageCapture);
-            // Ensure that there's a camera activity to handle the intent
+            // Ensure that there is a camera activity to handle the intent
             if (takePictureIntent.ResolveActivity(MainActivity.ActivityContext.PackageManager) != null)
             {
                 try
