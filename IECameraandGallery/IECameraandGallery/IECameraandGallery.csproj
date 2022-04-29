@@ -52,8 +52,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Syncfusion.Xamarin.Core" Version="*" />
     <PackageReference Include="Syncfusion.Xamarin.SfImageEditor" Version="*" />
-    <PackageReference Include="Xamarin.Forms" Version="5.0.0.2012" />
+    <PackageReference Include="Xamarin.Forms" Version="3.6.0.344457" />
   </ItemGroup>
 
   <ItemGroup>
